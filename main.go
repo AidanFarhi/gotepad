@@ -7,7 +7,7 @@ import (
 )
 
 type Note struct {
-	Index string
+	Index int
 	Body  string
 }
 
@@ -15,6 +15,10 @@ type AllNotes struct {
 	Notes []Note
 }
 
+/*
+getDb retrieves the path to the database file, creating it if it doesn't exist.
+It returns the database file path and any encountered error.
+*/
 func getDb() (string, error) {
 	dbName := os.Getenv("HOME") + "/.gotepad_db.json"
 	_, err := os.OpenFile(dbName, os.O_CREATE, 0644)
@@ -24,6 +28,11 @@ func getDb() (string, error) {
 	return dbName, nil
 }
 
+/*
+getUserCommand parses command-line arguments and returns the user command and its associated value (if any).
+The first argument is assumed to be the user command, and the second argument is its value.
+If no value is provided, the second return value will be an empty string.
+*/
 func getUserCommand() (string, string) {
 	var userCommand, value string
 	for i, arg := range os.Args {
@@ -41,15 +50,23 @@ func addNote(note, db string) {
 	fmt.Println("adding notes")
 }
 
+/*
+listNotes reads and lists notes from the specified database file.
+It reads the JSON data from the file, unmarshals it into a struct, and prints the notes.
+It returns an error if there is a problem reading or unmarshaling the data.
+*/
 func listNotes(db string) error {
-	// TODO: fix this function
 	f, err := os.ReadFile(db)
 	if err != nil {
 		fmt.Println(err)
 		return err
 	}
 	var data AllNotes
-	json.Unmarshal(f, &data)
+	err = json.Unmarshal(f, &data)
+	if err != nil {
+		fmt.Println(err)
+		return err
+	}
 	for i, note := range data.Notes {
 		fmt.Println(i, note.Index, note.Body)
 	}
